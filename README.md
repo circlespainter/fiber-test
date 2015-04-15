@@ -28,17 +28,13 @@ You first need to build the JMH Uber JAR using Maven.
 
 Next, you can either use the provided `benchmark.sh` script
 
-    $ ./benchmark-linux.sh --help
-    Available parameters (with defaults):
-        workerCount (503)
-        ringSize    (1000000)
-        cpuList     (0-1)
+    $ ./benchmark.sh --help
 
     # You can run with default parameters.
-    $ ./benchmark-linux.sh
+    $ ./benchmark.sh
 
     # Alternatively, you can configure parameters through environment variables.
-    $ ringSize=500 workerCount=30 cpuList=0-7 ./benchmark.sh
+    $ ringSize=500 workerCount=30 ./benchmark.sh
 
 or call JMH manually:
 
