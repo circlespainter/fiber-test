@@ -42,13 +42,13 @@
         <dependency>
             <groupId>co.paralleluniverse</groupId>
             <artifactId>quasar-core</artifactId>
+            <version>0.6.3-SNAPSHOT</version>
             <classifier>jdk8</classifier>
-            <version>0.6.2</version>
         </dependency>
         <dependency>
             <groupId>co.paralleluniverse</groupId>
             <artifactId>quasar-actors</artifactId>
-            <version>0.6.2</version>
+            <version>0.6.3-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>co.paralleluniverse</groupId>
