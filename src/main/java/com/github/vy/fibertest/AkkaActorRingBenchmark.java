@@ -47,7 +47,7 @@ public class AkkaActorRingBenchmark extends AbstractRingBenchmark {
     }
 
     @Override
-    @Benchmark
+    // @Benchmark
     public int[] ringBenchmark() throws Exception {
         // Create an actor system and a shutdown latch.
         final ActorSystem system = ActorSystem.create(AkkaActorRingBenchmark.class.getSimpleName() + "System");

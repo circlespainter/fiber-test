@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class AkkaActorRingBenchmarkTest extends AkkaActorRingBenchmark {
 
-    @Test
+    // @Test
     public void testRingBenchmark() throws Exception {
         Util.testRingBenchmark(workerCount, ringSize, ringBenchmark());
     }

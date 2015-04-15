@@ -40,7 +40,7 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark {
     }
 
     @Override
-    @Benchmark
+    // @Benchmark
     public int[] ringBenchmark() throws Exception {
         // Create worker threads.
         final int[] sequences = new int[workerCount];

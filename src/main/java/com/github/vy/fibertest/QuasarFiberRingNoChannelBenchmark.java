@@ -6,7 +6,7 @@ import co.paralleluniverse.fibers.Suspendable;
 import co.paralleluniverse.strands.Strand;
 import org.openjdk.jmh.annotations.Benchmark;
 
-public class QuasarFiberRingBenchmark extends AbstractRingBenchmark {
+public class QuasarFiberRingNoChannelBenchmark extends AbstractRingBenchmark {
 
     protected static class InternalFiber extends Fiber<Integer> {
 
@@ -16,7 +16,7 @@ public class QuasarFiberRingBenchmark extends AbstractRingBenchmark {
 
         public InternalFiber(final int id) {
             super(String.format("%s-%s-%d",
-                    QuasarFiberRingBenchmark.class.getSimpleName(),
+                    QuasarFiberRingNoChannelBenchmark.class.getSimpleName(),
                     InternalFiber.class.getSimpleName(), id));
         }
 
@@ -64,7 +64,6 @@ public class QuasarFiberRingBenchmark extends AbstractRingBenchmark {
     }
 
     public static void main(String[] args) throws Exception {
-        new QuasarFiberRingBenchmark().ringBenchmark();
+        new QuasarFiberRingNoChannelBenchmark().ringBenchmark();
     }
-
 }
