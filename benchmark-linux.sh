@@ -54,7 +54,7 @@ findQuasarJar() {
     local repoDir="$HOME/.m2/repository"
     requireFile \
         "$groupId:$artifactId:$version JAR" \
-        "$repoDir/$groupPath/$artifactId/$version/$artifactId-$version.jar"
+        "$repoDir/$groupPath/$artifactId/$version/$artifactId-$version-jdk8.jar"
 }
 
 artifactId=$( \
