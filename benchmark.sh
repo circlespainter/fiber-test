@@ -1,12 +1,13 @@
 #!/bin/bash
 
-jfrOpts="-XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:FlightRecorderOptions=defaultrecording=true,dumponexit=true,dumponexitpath=path"
+jfrOpts="-XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:FlightRecorderOptions=defaultrecording=true,dumponexit=true"
 
 set -e
 
 [ -z "$workerCount" ] && workerCount=503
 [ -z "$ringSize" ] && ringSize=1000000
 [ -z "$quasarAgentLocation" ] && quasarAgentLocation=$HOME/.m2/repository/co/paralleluniverse/quasar-core/0.6.3-SNAPSHOT/quasar-core-0.6.3-SNAPSHOT-jdk8.jar
+[ -z "$bytemanAgentLocation" ] && bytemanAgentLocation="$HOME/.m2/repository/org/jboss/byteman/byteman/2.2.1/byteman-2.2.1.jar"
 [ -z "$warmupIters" ] && warmupIters=5
 [ -z "$iters" ] && iters=10
 [ -z "$stat" ] && stat=avg
@@ -20,6 +21,7 @@ if [ "$1" = "-h" -o "$1" = "--help" ]; then
     echo "    workerCount             ($workerCount)"
     echo "    ringSize                ($ringSize)"
     echo "    quasarAgentLocation     ($quasarAgentLocation)"
+    echo "    bytemanAgentLocation    ($bytemanAgentLocation)"
     echo "    warmupIters             ($warmupIters)"
     echo "    iters                   ($iters)"
     echo "    stat                    ($stat)"
@@ -40,8 +42,9 @@ if [ ! -e "$quasarAgentLocation" ]; then
     exit 1
 fi
 
+# -Dorg.jboss.byteman.verbose
 cmd="$JAVA_HOME/bin/java -jar target/fiber-test.jar\
- -jvmArgsAppend \"$jfrOpts -DworkerCount=$workerCount -DringSize=$ringSize -javaagent:$quasarAgentLocation\"\
+ -jvmArgsAppend \"-Xbootclasspath/p:$bytemanAgentLocation $jfrOpts -Dorg.jboss.byteman.transform.all -DworkerCount=$workerCount -DringSize=$ringSize -javaagent:$quasarAgentLocation -javaagent:$bytemanAgentLocation=script:script.btm\"\
  -wi $warmupIters -i $iters -bm $stat -tu $unit -f $forks \"$benchRegexp\""
 
 echo "$cmd"

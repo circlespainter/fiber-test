@@ -1,0 +1,16 @@
+RULE g
+CLASS ^co.paralleluniverse.fibers.Fiber
+METHOD getCurrentFiber
+AT LINE 989
+IF true
+DO traceStack()
+ENDRULE
+
+#RULE trace Fiber.getCurrentFiber() calls
+#CLASS ^co.paralleluniverse.fibers.Fiber
+#METHOD getCurrentFiber
+#AT ENTRY
+#IF true
+#DO traceStack()
+#ENDRULE
+
