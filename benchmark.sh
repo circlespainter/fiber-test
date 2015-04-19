@@ -43,6 +43,7 @@ if [ ! -e "$quasarAgentLocation" ]; then
 fi
 
 # -Dorg.jboss.byteman.verbose
+# -Dco.paralleluniverse.fiber.verifyInstrumentation=true
 cmd="$JAVA_HOME/bin/java -jar target/ring-bench.jar\
  -jvmArgsAppend \"-Xbootclasspath/p:$bytemanAgentLocation $jfrOpts -Dorg.jboss.byteman.transform.all -DworkerCount=$workerCount -DringSize=$ringSize -javaagent:$quasarAgentLocation -javaagent:$bytemanAgentLocation=script:script.btm\"\
  -wi $warmupIters -i $iters -bm $stat -tu $unit -f $forks \"$benchRegexp\""

@@ -1,5 +1,6 @@
 package ringbench;
 
+import co.paralleluniverse.fibers.Fiber;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -33,6 +34,8 @@ public abstract class AbstractRingBenchmark<W extends RingWorker> extends RingBe
 
         // Wait for the latch.
         cdl.await();
+
+        System.out.println("Parks count: " + Fiber.getParksCount() + ", execs count: " + Fiber.getExecsCount());
 
         // Return result.
         return sequences;

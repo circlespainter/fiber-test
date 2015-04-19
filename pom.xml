@@ -71,6 +71,13 @@
     </dependencies>
 
     <build>
+        <sourceDirectory>${basedir}/src/jmh/java</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/jmh/resources</directory>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -133,6 +140,7 @@
                     <systemPropertyVariables>
                         <workerCount>32</workerCount>
                         <ringSize>130</ringSize>
+                        <co.paralleluniverse.fibers.verifyInstrumentation>true</co.paralleluniverse.fibers.verifyInstrumentation>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

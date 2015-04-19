@@ -1,0 +1,90 @@
+plugins {
+   id 'me.champeau.gradle.jmh' version '0.2.0'
+}
+
+apply plugin: 'java'
+apply plugin: 'me.champeau.gradle.jmh'
+
+apply from: 'gradle/vers.gradle'
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+configurations {
+    provided
+    quasar
+    byteman
+}
+
+sourceSets {
+    main.compileClasspath = main.compileClasspath + configurations.provided
+    test.compileClasspath = test.compileClasspath + configurations.provided + jmh.output
+    test.runtimeClasspath = test.runtimeClasspath + configurations.provided + jmh.output
+}
+
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
+
+        force "org.slf4j:slf4j-api:$slf4jVer"
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+//    maven { url "https://oss.sonatype.org/content/repositories/releases" }
+//    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+//    maven { url 'https://maven.java.net/content/repositories/snapshots' }
+}
+
+dependencies {
+    compile "org.slf4j:slf4j-api:$slf4jVer"
+    compile "ch.qos.logback:logback-classic:$logbackVer"
+    compile "org.openjdk.jmh:jmh-core:$jmhVer"
+    compile "com.typesafe.akka:akka-actor_2.11:$akkaVer"
+    compile "co.paralleluniverse:quasar-core:${quasarVer}:jdk8"
+    compile("co.paralleluniverse:quasar-actors:$quasarVer") {
+        exclude group: 'co.paralleluniverse', module: 'quasar-core'
+    }
+
+    provided "org.openjdk.jmh:jmh-generator-annprocess:$jmhVer"
+
+    quasar "co.paralleluniverse:quasar-core:${quasarVer}:jdk8@jar"
+    byteman "org.jboss.byteman:byteman:${bytemanVer}@jar"
+
+    testCompile "junit:junit:$junitVer"
+}
+
+jmh {
+    jvmArgs =
+        // "-XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:FlightRecorderOptions=defaultrecording=true,dumponexit=true " +
+        "-server -XX:+TieredCompilation -XX:+AggressiveOpts -Xbootclasspath/p:${configurations.byteman.singleFile} -Dorg.jboss.byteman.transform.all -javaagent:${configurations.byteman.singleFile}=script:${projectDir}/script.btm " +
+        // "-Dorg.jboss.byteman.verbose " +
+        "-javaagent:${configurations.quasar.singleFile} " +
+        // "-Dco.paralleluniverse.fiber.verifyInstrumentation=true " +
+        "-DringSize=1000000 " +
+        "-DworkerCount=503 "
+    jmhVersion = "$jmhVer"
+    include = '.*QuasarActor.*'
+    warmupIterations = 5
+    iterations = 10
+    timeUnit = 'ms'
+    benchmarkMode = 'avgt'
+    fork = 5
+    verbosity = 'EXTRA'
+}
+
+tasks.withType(Test) {
+    dependsOn jmhClasses
+
+    jvmArgs "-javaagent:${configurations.quasar.singleFile}"
+
+    systemProperty 'workerCount', '32'
+    systemProperty 'ringSize', '130'
+
+    exclude '**/generated/**'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}

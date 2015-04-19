@@ -36,7 +36,7 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
             }
             sequences[id] = sequence;
             latch.countDown();
-            return null;
+            return sequence;
         }
 
         @Override

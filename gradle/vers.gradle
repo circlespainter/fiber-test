@@ -1,0 +1,7 @@
+ext.quasarVer           = '0.6.3-SNAPSHOT'
+ext.junitVer            = '4.12'
+ext.akkaVer             = '2.3.9'
+ext.bytemanVer          = '2.2.1'
+ext.jmhVer              = '1.8'
+ext.slf4jVer            = '1.7.12'
+ext.logbackVer          = '1.1.3'
