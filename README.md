@@ -36,25 +36,6 @@ Next, you can either use the provided `benchmark.sh` script
     # Alternatively, you can configure parameters through environment variables.
     $ ringSize=500 workerCount=30 ./benchmark.sh
 
-or call JMH manually:
-
-    $ java \
-    > -jar target/fiber-test.jar \
-    > -jvmArgsAppend "-DworkerCount=503 -DringSize=1000000 -javaagent:/path/to/quasar-core-<version>.jar" \
-    > -wi 5 -i 10 -bm avgt -tu ms -f 5 \
-    > ".*RingBenchmark.*"
-
-Instead of using JMH, you can additionally use `assembly:single` goal to
-create an all-in-one JAR and run benchmarks individually.
-
-    $ mvn assembly:single
-    $ java \
-    > -server -XX:+TieredCompilation -XX:+AggressiveOpts \
-    > -DworkerCount=503 -DringSize=10000000 \
-    > -javaagent:/path/to/quasar-core-<version>.jar \
-    > -cp target/fiber-test-<version>-jar-with-dependencies.jar \
-    > com.github.vy.fibertest.QuasarFiberRingBenchmark
-
 License
 -------
 

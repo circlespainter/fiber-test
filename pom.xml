@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.vy</groupId>
-    <artifactId>fiber-test</artifactId>
+    <artifactId>ring-bench</artifactId>
     <version>0.1</version>
 
     <properties>
