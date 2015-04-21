@@ -1,25 +1,32 @@
 package ringbench.quasar.fibers;
 
 import co.paralleluniverse.fibers.Fiber;
-import ringbench.RingWorker;
 
 /**
  * @author ci
  */
-public abstract class AbstractRingFiberWorker extends Fiber<Integer> implements RingWorker {
-    protected RingWorker next;
+public abstract class AbstractRingFiberWorker<WorkerHandle> extends Fiber<Integer> {
+    protected WorkerHandle self;
+    protected WorkerHandle next;
 
-    public AbstractRingFiberWorker(String name) {
+    public AbstractRingFiberWorker(final String name) {
         super(name);
     }
 
-    @Override
-    public void setNext(final RingWorker rw) {
+    public AbstractRingFiberWorker(final String name, final WorkerHandle self) {
+        this(name);
+        this.self = self;
+    }
+
+    public void setNext(final WorkerHandle rw) {
         this.next = rw;
     }
 
-    @Override
-    public RingWorker getNext() {
+    public WorkerHandle getNext() {
         return next;
+    }
+
+    public WorkerHandle getSelf() {
+        return self;
     }
 }

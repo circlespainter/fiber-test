@@ -15,7 +15,7 @@ public abstract class AbstractFiberRingObjectMailboxBenchmark extends AbstractFi
 
     @Override
     protected void start(final ObjectMailboxFiberWorker fiber, final int ringSize) throws InterruptedException, SuspendExecution {
-        fiber.getMailbox().send(ringSize);
+        fiber.getSelf().send(ringSize);
     }
 
     @Override

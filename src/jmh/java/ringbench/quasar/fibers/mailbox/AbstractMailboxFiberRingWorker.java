@@ -2,7 +2,6 @@ package ringbench.quasar.fibers.mailbox;
 
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
-import ringbench.RingWorker;
 import ringbench.quasar.fibers.AbstractRingFiberWorker;
 
 import java.util.concurrent.CountDownLatch;
@@ -10,13 +9,13 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author circlespainter
  */
-public abstract class AbstractMailboxFiberRingWorker extends AbstractRingFiberWorker implements RingWorker {
+public abstract class AbstractMailboxFiberRingWorker<H> extends AbstractRingFiberWorker<H> {
     private final CountDownLatch latch;
     private final int id;
     private final int[] sequences;
 
-    public AbstractMailboxFiberRingWorker(final int id, final String name, final int[] seqs, final CountDownLatch cdl) {
-        super(name);
+    public AbstractMailboxFiberRingWorker(final int id, final String name, final int[] seqs, final CountDownLatch cdl, final H handle) {
+        super(name, handle);
         this.latch = cdl;
         this.id = id;
         this.sequences = seqs;

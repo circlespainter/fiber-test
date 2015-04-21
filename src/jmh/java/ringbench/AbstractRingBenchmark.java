@@ -11,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
  * @author circlespainter
  */
 @State(Scope.Benchmark)
-public abstract class AbstractRingBenchmark<W extends RingWorker> extends RingBenchmarkSupport {
+public abstract class AbstractRingBenchmark<W> extends RingBenchmarkSupport {
     protected CountDownLatch cdl;
 
     @Benchmark public int[] ringBenchmark() throws Exception {
@@ -19,11 +19,7 @@ public abstract class AbstractRingBenchmark<W extends RingWorker> extends RingBe
 
         // Create workers.
         final int[] sequences = new int[workerCount];
-        final W[] workers = createWorkers(sequences);
-
-        // Set next worker pointers.
-        for (int i = 0; i < workerCount; i++)
-            workers[i].setNext(workers[(i+1) % workerCount]);
+        final W[] workers = setupWorkers(sequences);
 
         // Start workers.
         startWorkers(workers);
@@ -35,13 +31,11 @@ public abstract class AbstractRingBenchmark<W extends RingWorker> extends RingBe
         // Wait for the latch.
         cdl.await();
 
-        System.out.println("Parks count: " + Fiber.getParksCount() + ", execs count: " + Fiber.getExecsCount());
-
         // Return result.
         return sequences;
     }
 
-    protected abstract W[] createWorkers(final int[] sequences);
+    protected abstract W[] setupWorkers(final int[] sequences);
     protected abstract void startWorkers(final W[] workers);
     protected abstract void startRing(W first);
 }

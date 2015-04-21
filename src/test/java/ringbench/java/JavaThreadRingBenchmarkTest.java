@@ -4,7 +4,8 @@ import org.junit.Test;
 import ringbench.Util;
 
 public class JavaThreadRingBenchmarkTest extends JavaThreadRingBenchmark {
-    @Test public void testRingBenchmark() throws Exception {
+    // @Test
+    public void testRingBenchmark() throws Exception {
         Util.testRingBenchmark(workerCount, ringSize, ringBenchmark());
     }
 }

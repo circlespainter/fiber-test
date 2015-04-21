@@ -3,22 +3,21 @@ package ringbench.quasar.fibers;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
 import co.paralleluniverse.strands.Strand;
-import ringbench.RingWorker;
 
 import java.util.concurrent.CountDownLatch;
 
 public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmark<QuasarFiberRingNoChannelBenchmark.ParkUnparkFiber> {
-    protected static class ParkUnparkFiber extends AbstractRingFiberWorker {
+    protected static class ParkUnparkFiber extends AbstractRingFiberWorker<ParkUnparkFiber> {
         protected final CountDownLatch latch;
         private final int[] sequences;
         private final int id;
 
-        protected ParkUnparkFiber next;
         protected volatile boolean waiting = true;
         protected int sequence = Integer.MAX_VALUE;
 
         public ParkUnparkFiber(final int id, final int[] seqs, final CountDownLatch cdl) {
             super("ParkUnpark");
+            this.self = this;
             this.latch = cdl;
             this.id = id;
             this.sequences = seqs;
@@ -37,16 +36,6 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
             sequences[id] = sequence;
             latch.countDown();
             return sequence;
-        }
-
-        @Override
-        public RingWorker getNext() {
-            return next;
-        }
-
-        @Override
-        public void setNext(RingWorker rw) {
-            this.next = (ParkUnparkFiber) rw;
         }
     }
 
