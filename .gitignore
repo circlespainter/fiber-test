@@ -3,10 +3,11 @@
 .idea/
 target/
 build/
-gradle/wrapper/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 release.properties
 *.jfr
+*log.*
+*.log*
