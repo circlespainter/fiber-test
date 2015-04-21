@@ -12,8 +12,10 @@ import java.util.concurrent.CountDownLatch;
 public abstract class AbstractFiberRingBenchmark<F extends AbstractRingFiberWorker> extends AbstractRingBenchmark<F> {
     @Override protected F[] setupWorkers(final int[] sequences) {
         final F[] fibers = newFiberArray(workerCount);
+
         for (int i = 0; i < workerCount; i++)
             fibers[i] = newFiber(i, sequences, cdl);
+
         // Set next worker pointers.
         for (int i = 0; i < workerCount; i++)
             fibers[i].next = fibers[(i+1) % workerCount].self;
