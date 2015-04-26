@@ -66,11 +66,6 @@ public class QuasarActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
     }
 
     @Override
-    protected void startWorkers(ActorRef[] workers) {
-        // NOP, already started
-    }
-
-    @Override
     protected void startRing(ActorRef first) throws SuspendExecution {
         first.send(ringSize);
     }

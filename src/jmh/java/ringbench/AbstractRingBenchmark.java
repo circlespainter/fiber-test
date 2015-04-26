@@ -35,10 +35,14 @@ public abstract class AbstractRingBenchmark<W> extends RingBenchmarkSupport {
         // Wait for the latch.
         cdl.await();
 
+        shutdown();
+
         return sequences;
     }
 
+    protected void shutdown() {}
+    protected void startWorkers(final W[] workers) {}
+
     protected abstract W[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl);
-    protected abstract void startWorkers(final W[] workers);
     protected abstract void startRing(W first) throws SuspendExecution;
 }

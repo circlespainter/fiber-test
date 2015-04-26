@@ -16,6 +16,8 @@ import java.util.concurrent.CountDownLatch;
  * notify the completion of the ring.
  */
 public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
+    private ActorSystem system;
+
     protected static class InternalActor extends UntypedActor {
         protected final int id;
         protected final int[] sequences;
@@ -45,7 +47,7 @@ public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
 
     @Override
     protected ActorRef[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl) {
-        final ActorSystem system = ActorSystem.create(AkkaActorRingBenchmark.class.getSimpleName() + "System");
+        system = ActorSystem.create(AkkaActorRingBenchmark.class.getSimpleName() + "System");
 
         final ActorRef[][] actors = new ActorRef[sequences.length][sequences.length >= 0 ? sequences[0].length : 0];
 
@@ -67,12 +69,12 @@ public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
     }
 
     @Override
-    protected void startWorkers(final ActorRef[] workers) {
-        // NOP, already started
+    protected void startRing(final ActorRef first) throws SuspendExecution {
+        first.tell(ringSize, null);
     }
 
     @Override
-    protected void startRing(final ActorRef first) throws SuspendExecution {
-        first.tell(ringSize, null);
+    protected void shutdown() {
+        system.shutdown();
     }
 }
