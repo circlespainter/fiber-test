@@ -43,29 +43,36 @@ public class AkkaActorRingBenchmark extends RingBenchmarkSupport {
         }
     }
 
-    @Benchmark public int[] ringBenchmark() throws Exception {
+    @Benchmark public int[][] ringBenchmark() throws Exception {
         // Create an actor system and a shutdown latch.
         final ActorSystem system = ActorSystem.create(AkkaActorRingBenchmark.class.getSimpleName() + "System");
         final CountDownLatch latch = new CountDownLatch(workerCount);
 
         // Create actors.
-        final int[] sequences = new int[workerCount];
-        final ActorRef[] actors = new ActorRef[workerCount];
-        for (int i = 0; i < workerCount; i++)
-            actors[i] = system.actorOf(
-                    Props.create(InternalActor.class, i, sequences, latch),
-                    String.format("%s-%d", AkkaActorRingBenchmark.class.getSimpleName(), i));
+        final int[][] sequences = new int[rings][workerCount];
+        final ActorRef[][] actors = new ActorRef[rings][workerCount];
 
-        // Set next actor pointers.
-        for (int i = 0; i < workerCount; i++)
-            actors[i].tell(actors[(i+1) % workerCount], null);
+        for(int i = 0; i < rings; i++) {
+            for (int j = 0; j < workerCount; j++)
+                actors[i][j] = system.actorOf(
+                        Props.create(InternalActor.class, j, sequences[i], latch),
+                        String.format("%s-%d-%d", AkkaActorRingBenchmark.class.getSimpleName(), i, j));
 
-        // Initiate the ring.
-        actors[0].tell(ringSize, null);
+            // Set next actor pointers.
+            for (int j = 0; j < workerCount; j++)
+                actors[i][j].tell(actors[i][(j + 1) % workerCount], null);
+        }
+
+        for(int i = 0; i < rings; i++) {
+            // Initiate the rings.
+            actors[i][0].tell(ringSize, null);
+        }
 
         // Wait for the latch.
         latch.await();
+
         system.shutdown();
+
         return sequences;
     }
 

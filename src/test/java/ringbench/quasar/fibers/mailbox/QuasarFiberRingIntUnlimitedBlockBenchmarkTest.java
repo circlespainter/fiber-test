@@ -8,6 +8,6 @@ import ringbench.Util;
  */
 public class QuasarFiberRingIntUnlimitedBlockBenchmarkTest extends QuasarFiberRingIntUnlimitedBlockBenchmark {
     @Test public void testRingBenchmark() throws Exception {
-        Util.testRingBenchmark(workerCount, ringSize, ringBenchmark());
+        Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark());
     }
 }

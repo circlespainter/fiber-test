@@ -4,6 +4,7 @@ import co.paralleluniverse.actors.Actor;
 import co.paralleluniverse.actors.ActorRef;
 import co.paralleluniverse.fibers.SuspendExecution;
 import org.openjdk.jmh.annotations.Benchmark;
+import ringbench.AbstractRingBenchmark;
 import ringbench.RingBenchmarkSupport;
 
 import java.util.concurrent.CountDownLatch;
@@ -11,8 +12,8 @@ import java.util.concurrent.CountDownLatch;
 /**
  * @author circlespainter
  */
-public class QuasarActorRingBenchmark extends RingBenchmarkSupport {
-    protected static class InternalActor extends Actor {
+public class QuasarActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
+    protected static class InternalActor extends Actor<Integer, Void> {
         private final int id;
         private final int[] sequences;
         private final CountDownLatch cdl;
@@ -28,47 +29,49 @@ public class QuasarActorRingBenchmark extends RingBenchmarkSupport {
             this.cdl = latch;
         }
 
-        @Override protected Object doRun() throws InterruptedException, SuspendExecution {
-            int sequence = Integer.MAX_VALUE;
+        @Override protected Void doRun() throws InterruptedException, SuspendExecution {
+            Integer sequence = Integer.MAX_VALUE;
             while (sequence > 0) {
-                Object message = receive();
-                if (message instanceof Integer) {
-                    sequence = (Integer) message;
-                    next.send(sequence - 1);
-                }
+                Integer message = receive();
+                sequence = message;
+                next.send(sequence - 1);
             }
             sequences[id] = sequence;
             cdl.countDown();
-            return sequence;
+            return null;
         }
     }
 
-    @Benchmark public int[] ringBenchmark() throws Exception {
-        final CountDownLatch cdl = new CountDownLatch(workerCount);
+    @Override
+    protected ActorRef[][] setupWorkers(int[][] sequences, CountDownLatch cdl) {
+        final ActorRef[][] actorRefs = new ActorRef[sequences.length][sequences.length >= 0 ? sequences[0].length : 0];
 
-        int[] sequences = new int[workerCount];
-        // Create and start actors.
-        final InternalActor[] actors = new InternalActor[workerCount];
-        final ActorRef[] actorRefs = new ActorRef[workerCount];
-        for (int i = 0; i < workerCount; i++) {
-            InternalActor actor = new InternalActor(i, sequences, cdl);
-            actors[i] = actor;
-            actorRefs[i] = actor.spawn();
+        for (int i = 0; i < sequences.length; i++) {
+            final ActorRef[] refs = actorRefs[i];
+            final int len = refs.length;
+            final InternalActor[] actors = new InternalActor[len];
+
+            for (int j = 0; j < len; j++) {
+                final InternalActor actor = new InternalActor(j, sequences[i], cdl);
+                actors[j] = actor;
+                refs[j] = actor.spawn();
+            }
+
+            // Set next actor pointers.
+            for (int j = 0; j < len; j++)
+                actors[j].next = refs[(j+1) % workerCount];
         }
 
-        // Set next actor pointers.
-        for (int i = 0; i < workerCount; i++)
-            actors[i].next = actorRefs[(i+1) % workerCount];
-
-        // Initiate the ring.
-        actorRefs[0].send(ringSize);
-
-        // Wait for actors to finish and collect the results.
-        cdl.await();
-        return sequences;
+        return actorRefs;
     }
 
-    public static void main(final String[] args) throws Exception {
-        new QuasarActorRingBenchmark().ringBenchmark();
+    @Override
+    protected void startWorkers(ActorRef[] workers) {
+        // NOP, already started
+    }
+
+    @Override
+    protected void startRing(ActorRef first) throws SuspendExecution {
+        first.send(ringSize);
     }
 }

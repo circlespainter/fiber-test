@@ -1,5 +1,6 @@
 package ringbench.quasar.fibers.mailbox;
 
+import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
 
 import java.util.concurrent.CountDownLatch;
@@ -9,8 +10,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public abstract class AbstractFiberRingObjectMailboxBenchmark extends AbstractFiberConfigurableMailboxRingBenchmark<ObjectMailboxFiberWorker> {
     @Override
-    protected ObjectMailboxFiberWorker[] newFiberArray(final int size) {
-        return new ObjectMailboxFiberWorker[size];
+    protected ObjectMailboxFiberWorker[][] newFiberArray(final int rings, final int size) {
+        return new ObjectMailboxFiberWorker[rings][size];
     }
 
     @Override
@@ -19,7 +20,7 @@ public abstract class AbstractFiberRingObjectMailboxBenchmark extends AbstractFi
     }
 
     @Override
-    protected ObjectMailboxFiberWorker newFiber(final int id, final int[] sequences, final CountDownLatch cdl) {
-        return new ObjectMailboxFiberWorker(id, getFiberBaseName() + "-" + id, sequences, cdl, getMailboxSize(), getMailboxPolicy());
+    protected ObjectMailboxFiberWorker newFiber(final FiberScheduler scheduler, final int id, final int[] sequences, final CountDownLatch cdl) {
+        return new ObjectMailboxFiberWorker(scheduler, id, getFiberBaseName() + "-" + id, sequences, cdl, getMailboxSize(), getMailboxPolicy());
     }
 }

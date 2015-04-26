@@ -1,5 +1,6 @@
 package ringbench.quasar.fibers.mailbox;
 
+import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
 import ringbench.quasar.fibers.AbstractRingFiberWorker;
@@ -14,8 +15,8 @@ public abstract class AbstractMailboxFiberRingWorker<H> extends AbstractRingFibe
     private final int id;
     private final int[] sequences;
 
-    public AbstractMailboxFiberRingWorker(final int id, final String name, final int[] seqs, final CountDownLatch cdl, final H handle) {
-        super(name, handle);
+    public AbstractMailboxFiberRingWorker(final FiberScheduler scheduler, final int id, final String name, final int[] seqs, final CountDownLatch cdl, final H handle) {
+        super(scheduler, name, handle);
         this.latch = cdl;
         this.id = id;
         this.sequences = seqs;
@@ -35,9 +36,9 @@ public abstract class AbstractMailboxFiberRingWorker<H> extends AbstractRingFibe
         return sequence;
     }
 
-    protected abstract int receiveFromMailbox() throws InterruptedException, SuspendExecution;
+    protected abstract Integer receiveFromMailbox() throws InterruptedException, SuspendExecution;
 
-    protected abstract void sendToNext(final int i) throws InterruptedException, SuspendExecution;
+    protected abstract void sendToNext(final Integer i) throws InterruptedException, SuspendExecution;
 
     protected abstract void closeMailbox();
 }

@@ -5,6 +5,6 @@ import ringbench.Util;
 
 public class AkkaActorRingBenchmarkTest extends AkkaActorRingBenchmark {
     @Test public void testRingBenchmark() throws Exception {
-        Util.testRingBenchmark(workerCount, ringSize, ringBenchmark());
+        Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark());
     }
 }

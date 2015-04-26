@@ -2,6 +2,7 @@ package ringbench.java;
 
 import ringbench.AbstractRingBenchmark;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -16,37 +17,46 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark<JavaThreadRin
     }
 
     @Override
-    protected ThreadWorker[] setupWorkers(int[] sequences) {
-        final ThreadWorker[] workers = new ThreadWorker[workerCount];
+    protected ThreadWorker[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl) {
+        final ThreadWorker[][] workers = new ThreadWorker[sequences.length][sequences.length >= 0 ? sequences[0].length : 0];
 
-        for (int i = 0; i < workerCount; i++)
-            workers[i] = new ThreadWorker(i, sequences);
+        for (int i = 0; i < sequences.length; i++) {
+            final ThreadWorker[] seq = workers[i];
+            final int len = seq.length;
 
-        // Set next worker pointers.
-        for (int i = 0; i < workerCount; i++)
-            workers[i].next = workers[(i + 1) % workerCount];
+            for (int j = 0; j < len; j++)
+                seq[j] = new ThreadWorker(j, sequences[i], cdl);
+
+            // Set next worker pointers.
+            for (int j = 0; j < len; j++)
+                workers[i][j].next = workers[i][(j + 1) % workerCount];
+        }
 
         return workers;
     }
 
     @Override
-    protected void startWorkers(ThreadWorker[] workers) {
+    protected void startWorkers(final ThreadWorker[] workers) {
         for (final ThreadWorker worker : workers) worker.start();
     }
 
     protected class ThreadWorker extends Thread {
-        protected final int id;
-        protected final int[] sequences;
-        protected volatile boolean waiting = true;
-        protected int sequence = Integer.MAX_VALUE;
-        protected volatile ThreadWorker next;
+        private final int id;
+        private final int[] sequences;
+        private CountDownLatch cdl;
 
-        public ThreadWorker(final int id, final int[] sequences) {
+        private volatile boolean waiting = true;
+        private volatile int sequence = Integer.MAX_VALUE;
+
+        protected ThreadWorker next;
+
+        public ThreadWorker(final int id, final int[] sequences, final CountDownLatch cdl) {
             super(String.format("%s-%s-%d",
                     JavaThreadRingBenchmark.class.getSimpleName(),
                     ThreadWorker.class.getSimpleName(), id));
             this.id = id;
             this.sequences = sequences;
+            this.cdl = cdl;
         }
 
         @Override

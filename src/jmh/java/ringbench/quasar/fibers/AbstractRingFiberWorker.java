@@ -1,6 +1,7 @@
 package ringbench.quasar.fibers;
 
 import co.paralleluniverse.fibers.Fiber;
+import co.paralleluniverse.fibers.FiberScheduler;
 
 /**
  * @author ci
@@ -9,12 +10,12 @@ public abstract class AbstractRingFiberWorker<WorkerHandle> extends Fiber<Intege
     protected WorkerHandle self;
     protected WorkerHandle next;
 
-    public AbstractRingFiberWorker(final String name) {
-        super(name);
+    public AbstractRingFiberWorker(final FiberScheduler scheduler, final String name) {
+        super(name, scheduler);
     }
 
-    public AbstractRingFiberWorker(final String name, final WorkerHandle self) {
-        this(name);
+    public AbstractRingFiberWorker(final FiberScheduler scheduler, final String name, final WorkerHandle self) {
+        this(scheduler, name);
         this.self = self;
     }
 

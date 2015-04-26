@@ -10,9 +10,17 @@ import org.openjdk.jmh.annotations.State;
 public class RingBenchmarkSupport {
     protected final int workerCount;
     protected final int ringSize;
+    protected final int rings;
 
     public RingBenchmarkSupport() {
-        this.workerCount = Integer.parseInt(System.getProperty("workerCount"));
-        this.ringSize = Integer.parseInt(System.getProperty("ringSize"));
+        workerCount = Integer.parseInt(System.getProperty("workerCount"));
+        ringSize = Integer.parseInt(System.getProperty("ringSize"));
+        int rings;
+        try {
+            rings = Integer.parseInt(System.getProperty("rings"));
+        } catch (Throwable t) {
+            rings = Runtime.getRuntime().availableProcessors();
+        }
+        this.rings = rings;
     }
 }

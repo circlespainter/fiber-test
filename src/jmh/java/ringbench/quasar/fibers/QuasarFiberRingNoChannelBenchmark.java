@@ -1,5 +1,6 @@
 package ringbench.quasar.fibers;
 
+import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
 import co.paralleluniverse.strands.Strand;
@@ -13,10 +14,10 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
         private final int id;
 
         protected volatile boolean waiting = true;
-        protected int sequence = Integer.MAX_VALUE;
+        protected volatile int sequence = Integer.MAX_VALUE;
 
-        public ParkUnparkFiber(final int id, final int[] seqs, final CountDownLatch cdl) {
-            super("ParkUnpark");
+        public ParkUnparkFiber(final FiberScheduler scheduler, final int id, final int[] seqs, final CountDownLatch cdl) {
+            super(scheduler, "ParkUnpark");
             this.self = this;
             this.latch = cdl;
             this.id = id;
@@ -40,13 +41,13 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
     }
 
     @Override
-    protected ParkUnparkFiber[] newFiberArray(final int size) {
-        return new ParkUnparkFiber[size];
+    protected ParkUnparkFiber[][] newFiberArray(final int rings, final int size) {
+        return new ParkUnparkFiber[rings][size];
     }
 
     @Override
-    protected ParkUnparkFiber newFiber(final int id, final int[] sequences, final CountDownLatch cdl) {
-        return new ParkUnparkFiber(id, sequences, cdl);
+    protected ParkUnparkFiber newFiber(final FiberScheduler scheduler, final int id, final int[] sequences, final CountDownLatch cdl) {
+        return new ParkUnparkFiber(scheduler, id, sequences, cdl);
     }
 
     @Override
