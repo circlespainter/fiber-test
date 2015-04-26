@@ -4,8 +4,8 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import org.openjdk.jmh.annotations.Benchmark;
-import ringbench.RingBenchmarkSupport;
+import co.paralleluniverse.fibers.SuspendExecution;
+import ringbench.AbstractRingBenchmark;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
  * Internally actors use a {@link java.util.concurrent.CountDownLatch} to
  * notify the completion of the ring.
  */
-public class AkkaActorRingBenchmark extends RingBenchmarkSupport {
+public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
     protected static class InternalActor extends UntypedActor {
         protected final int id;
         protected final int[] sequences;
@@ -43,40 +43,36 @@ public class AkkaActorRingBenchmark extends RingBenchmarkSupport {
         }
     }
 
-    @Benchmark public int[][] ringBenchmark() throws Exception {
-        // Create an actor system and a shutdown latch.
+    @Override
+    protected ActorRef[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl) {
         final ActorSystem system = ActorSystem.create(AkkaActorRingBenchmark.class.getSimpleName() + "System");
-        final CountDownLatch latch = new CountDownLatch(workerCount);
 
-        // Create actors.
-        final int[][] sequences = new int[rings][workerCount];
-        final ActorRef[][] actors = new ActorRef[rings][workerCount];
+        final ActorRef[][] actors = new ActorRef[sequences.length][sequences.length >= 0 ? sequences[0].length : 0];
 
         for(int i = 0; i < rings; i++) {
-            for (int j = 0; j < workerCount; j++)
-                actors[i][j] = system.actorOf(
-                        Props.create(InternalActor.class, j, sequences[i], latch),
+            final ActorRef[] acts = actors[i];
+            final int len = acts.length;
+
+            for (int j = 0; j < len; j++)
+                acts[j] = system.actorOf(
+                        Props.create(InternalActor.class, j, sequences[i], cdl),
                         String.format("%s-%d-%d", AkkaActorRingBenchmark.class.getSimpleName(), i, j));
 
             // Set next actor pointers.
-            for (int j = 0; j < workerCount; j++)
-                actors[i][j].tell(actors[i][(j + 1) % workerCount], null);
+            for (int j = 0; j < len; j++)
+                actors[i][j].tell(actors[i][(j + 1) % len], null);
         }
 
-        for(int i = 0; i < rings; i++) {
-            // Initiate the rings.
-            actors[i][0].tell(ringSize, null);
-        }
-
-        // Wait for the latch.
-        latch.await();
-
-        system.shutdown();
-
-        return sequences;
+        return actors;
     }
 
-    public static void main(String[] args) throws Exception {
-        new AkkaActorRingBenchmark().ringBenchmark();
+    @Override
+    protected void startWorkers(final ActorRef[] workers) {
+        // NOP, already started
+    }
+
+    @Override
+    protected void startRing(final ActorRef first) throws SuspendExecution {
+        first.tell(ringSize, null);
     }
 }
