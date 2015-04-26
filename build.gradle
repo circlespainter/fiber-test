@@ -80,7 +80,10 @@ jmh {
     benchmarkMode = 'avgt'
     fork = 5
     verbosity = 'EXTRA'
-    profilers = ['perfasm', 'jfr']
+//      profilers = [
+//          'perfasm',
+//          'jfr'
+//      ]
 }
 
 tasks.withType(Test) {
