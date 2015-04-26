@@ -15,6 +15,8 @@ set -e
 
 [ -z "$workerCount" ] && workerCount=503
 [ -z "$ringSize" ] && ringSize=1000000
+[ -z "$rings" ] && rings=2
+[ -z "$fiberParallelism" ] && fiberParallelism=$rings
 [ -z "$quasarAgentLocation" ] && quasarAgentLocation=$HOME/.m2/repository/co/paralleluniverse/quasar-core/0.6.3-SNAPSHOT/quasar-core-0.6.3-SNAPSHOT-jdk8.jar
 [ -z "$bytemanAgentLocation" ] && bytemanAgentLocation="$HOME/.m2/repository/org/jboss/byteman/byteman/2.2.1/byteman-2.2.1.jar"
 [ -z "$warmupIters" ] && warmupIters=5
@@ -24,7 +26,6 @@ set -e
 [ -z "$forks" ] && forks=5
 [ -z "$benchRegexp" ] && benchRegexp=".*Benchmark.*"
 [ -z "$cpuList" ] && cpuList=$(findCpuList)
-[ -z "$rings" ] && rings=2
 [ "$enableJfr" != "true" ] && enableJfr=false && jfrOpts=""
 
 if [ "$1" = "-h" -o "$1" = "--help" ]; then
@@ -32,6 +33,7 @@ if [ "$1" = "-h" -o "$1" = "--help" ]; then
     echo "    workerCount             ($workerCount)"
     echo "    ringSize                ($ringSize)"
     echo "    rings                   ($rings)"
+    echo "    fiberParallelism        ($fiberParallelism)"
     echo "    quasarAgentLocation     ($quasarAgentLocation)"
     echo "    bytemanAgentLocation    ($bytemanAgentLocation)"
     echo "    warmupIters             ($warmupIters)"
@@ -58,7 +60,7 @@ fi
 # -Dorg.jboss.byteman.verbose
 # -Dco.paralleluniverse.fiber.verifyInstrumentation=true
 cmd="taskset -c $cpuList $JAVA_HOME/bin/java -server -XX:+TieredCompilation -XX:+AggressiveOpts -Djmh.perfasm.hotThreshold=0.03 -Djmh.perfasm.tooBigThreshold=5000 -Djmh.perfasm.events=cycles,instructions,cache-misses -jar target/ring-bench.jar\
- -jvmArgsAppend \"-server -XX:+TieredCompilation -XX:+AggressiveOpts -Xbootclasspath/p:$bytemanAgentLocation $jfrOpts -Dorg.jboss.byteman.transform.all -DworkerCount=$workerCount -DringSize=$ringSize -Drings=$rings -DfiberParallelism=$rings -javaagent:$quasarAgentLocation -javaagent:$bytemanAgentLocation=script:script.btm\"\
+ -jvmArgsAppend \"-server -XX:+TieredCompilation -XX:+AggressiveOpts -Xbootclasspath/p:$bytemanAgentLocation $jfrOpts -Dorg.jboss.byteman.transform.all -DworkerCount=$workerCount -DringSize=$ringSize -Drings=$rings -DfiberParallelism=$fiberParallelism -javaagent:$quasarAgentLocation -javaagent:$bytemanAgentLocation=script:script.btm\"\
  -wi $warmupIters -i $iters -bm $stat -tu $unit -f $forks -prof perfasm \"$benchRegexp\""
 
 echo "$cmd"
