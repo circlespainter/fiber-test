@@ -3,6 +3,7 @@ package ringbench.quasar.fibers.mailbox;
 import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
+import org.openjdk.jmh.infra.Blackhole;
 import ringbench.quasar.fibers.AbstractRingFiberWorker;
 
 import java.util.concurrent.CountDownLatch;
@@ -15,8 +16,8 @@ public abstract class AbstractMailboxFiberRingWorker<H> extends AbstractRingFibe
     private final int id;
     private final int[] sequences;
 
-    public AbstractMailboxFiberRingWorker(final FiberScheduler scheduler, final int id, final String name, final int[] seqs, final CountDownLatch cdl, final H handle) {
-        super(scheduler, name, handle);
+    public AbstractMailboxFiberRingWorker(final FiberScheduler scheduler, final int id, final String name, final int[] seqs, final CountDownLatch cdl, final H handle, final Blackhole bh) {
+        super(scheduler, name, handle, bh);
         this.latch = cdl;
         this.id = id;
         this.sequences = seqs;
@@ -28,6 +29,11 @@ public abstract class AbstractMailboxFiberRingWorker<H> extends AbstractRingFibe
         int sequence = Integer.MAX_VALUE;
         while (sequence > 0) {
             sequence = receiveFromMailbox();
+            try {
+                doWork(blackHole);
+            } catch (final Exception e) {
+                throw new AssertionError(e);
+            }
             sendToNext(sequence - 1);
         }
         closeMailbox();

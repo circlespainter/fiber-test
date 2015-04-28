@@ -1,4 +1,4 @@
-package ringbench.quasar.fibers.mailbox;
+package ringbench.quasar.actors;
 
 import org.junit.Test;
 import ringbench.Util;
@@ -6,7 +6,7 @@ import ringbench.Util;
 /**
  * @author circlespainter
  */
-public class QuasarFiberRingObjectExchangeBenchmarkTest extends QuasarFiberRingObjectTransferBenchmark {
+public class QuasarActorBounded10ThrowRingBenchmarkTest extends QuasarActorBounded10ThrowRingBenchmark {
     @Test public void testRingBenchmark() throws Exception {
         Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark(null));
     }

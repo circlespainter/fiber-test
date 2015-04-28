@@ -8,6 +8,6 @@ import ringbench.Util;
  */
 public class QuasarActorRingBenchmarkTest extends QuasarActorRingBenchmark {
     @Test public void testRingBenchmark() throws Exception {
-        Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark());
+        Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark(null));
     }
 }

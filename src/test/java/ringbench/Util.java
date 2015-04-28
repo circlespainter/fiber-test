@@ -1,5 +1,6 @@
 package ringbench;
 
+import org.openjdk.jmh.infra.Blackhole;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

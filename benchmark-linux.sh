@@ -15,7 +15,8 @@ set -e
 [ -z "$ringSize" ] && ringSize=1000000
 [ -z "$rings" ] && rings=2
 [ -z "$fiberParallelism" ] && fiberParallelism=$rings
-[ -z "$quasarAgentLocation" ] && quasarAgentLocation=$HOME/.m2/repository/co/paralleluniverse/quasar-core/0.6.3-SNAPSHOT/quasar-core-0.6.3-SNAPSHOT-jdk8.jar
+[ -z "$businessLogic" ] && businessLogic=randomSqrt
+[ -z "$quasarAgentLocation" ] && quasarAgentLocation=$HOME/.m2/repository/co/paralleluniverse/quasar-core/0.6.3-SNAPSHOT/quasar-core-0.6.3-SNAPSHOT.jar
 [ -z "$bytemanAgentLocation" ] && bytemanAgentLocation="$HOME/.m2/repository/org/jboss/byteman/byteman/2.2.1/byteman-2.2.1.jar"
 [ -z "$warmupIters" ] && warmupIters=5
 [ -z "$iters" ] && iters=10
@@ -32,6 +33,7 @@ if [ "$1" = "-h" -o "$1" = "--help" ]; then
     echo "    ringSize                ($ringSize)"
     echo "    rings                   ($rings)"
     echo "    fiberParallelism        ($fiberParallelism)"
+    echo "    businessLogic           ($businessLogic)"
     echo "    quasarAgentLocation     ($quasarAgentLocation)"
     echo "    bytemanAgentLocation    ($bytemanAgentLocation)"
     echo "    warmupIters             ($warmupIters)"
@@ -56,7 +58,7 @@ if [ ! -e "$quasarAgentLocation" ]; then
 fi
 
 cmd="taskset -c $cpuList $JAVA_HOME/bin/java -server -XX:+TieredCompilation -XX:+AggressiveOpts -jar target/ring-bench.jar\
- -jvmArgsAppend \"-server -XX:+TieredCompilation -XX:+AggressiveOpts -DworkerCount=$workerCount -DringSize=$ringSize -Drings=$rings -DfiberParallelism=$fiberParallelism -javaagent:$quasarAgentLocation\"\
+ -jvmArgsAppend \"-server -XX:+TieredCompilation -XX:+AggressiveOpts -DworkerCount=$workerCount -DringSize=$ringSize -Drings=$rings -DfiberParallelism=$fiberParallelism -DbusinessLogic=$businessLogic -javaagent:$quasarAgentLocation\"\
  -wi $warmupIters -i $iters -bm $stat -tu $unit -f $forks \"$benchRegexp\""
 
 echo "$cmd"

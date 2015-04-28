@@ -2,20 +2,25 @@ package ringbench.quasar.fibers;
 
 import co.paralleluniverse.fibers.Fiber;
 import co.paralleluniverse.fibers.FiberScheduler;
+import org.openjdk.jmh.infra.Blackhole;
+import ringbench.BusinessLogic;
+import ringbench.RingWorker;
 
 /**
- * @author ci
+ * @author circlespainter
  */
-public abstract class AbstractRingFiberWorker<WorkerHandle> extends Fiber<Integer> {
+public abstract class AbstractRingFiberWorker<WorkerHandle> extends Fiber<Integer> implements RingWorker {
     protected WorkerHandle self;
     protected WorkerHandle next;
+    public Blackhole blackHole;
 
-    public AbstractRingFiberWorker(final FiberScheduler scheduler, final String name) {
+    public AbstractRingFiberWorker(final FiberScheduler scheduler, final String name, final Blackhole bh) {
         super(name, scheduler);
+        blackHole = bh;
     }
 
-    public AbstractRingFiberWorker(final FiberScheduler scheduler, final String name, final WorkerHandle self) {
-        this(scheduler, name);
+    public AbstractRingFiberWorker(final FiberScheduler scheduler, final String name, final WorkerHandle self, final Blackhole bh) {
+        this(scheduler, name, bh);
         this.self = self;
     }
 

@@ -2,6 +2,7 @@ package ringbench.quasar.fibers.mailbox;
 
 import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -20,7 +21,7 @@ public abstract class AbstractFiberRingObjectMailboxBenchmark extends AbstractFi
     }
 
     @Override
-    protected ObjectMailboxFiberWorker newFiber(final FiberScheduler scheduler, final int id, final int[] sequences, final CountDownLatch cdl) {
-        return new ObjectMailboxFiberWorker(scheduler, id, getFiberBaseName() + "-" + id, sequences, cdl, getMailboxSize(), getMailboxPolicy());
+    protected ObjectMailboxFiberWorker newFiber(final FiberScheduler scheduler, final int id, final int[] sequences, final CountDownLatch cdl, final Blackhole bh) {
+        return new ObjectMailboxFiberWorker(scheduler, id, getFiberBaseName() + "-" + id, sequences, cdl, getMailboxSize(), getMailboxPolicy(), bh);
     }
 }

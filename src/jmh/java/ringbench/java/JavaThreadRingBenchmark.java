@@ -1,6 +1,8 @@
 package ringbench.java;
 
+import org.openjdk.jmh.infra.Blackhole;
 import ringbench.AbstractRingBenchmark;
+import ringbench.RingWorker;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.LockSupport;
@@ -17,7 +19,7 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark<JavaThreadRin
     }
 
     @Override
-    protected ThreadWorker[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl) {
+    protected ThreadWorker[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl, final Blackhole bh) {
         final ThreadWorker[][] workers = new ThreadWorker[sequences.length][sequences.length >= 0 ? sequences[0].length : 0];
 
         for (int i = 0; i < sequences.length; i++) {
@@ -25,7 +27,7 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark<JavaThreadRin
             final int len = seq.length;
 
             for (int j = 0; j < len; j++)
-                seq[j] = new ThreadWorker(j, sequences[i], cdl);
+                seq[j] = new ThreadWorker(j, sequences[i], cdl, bh);
 
             // Set next worker pointers.
             for (int j = 0; j < len; j++)
@@ -40,9 +42,10 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark<JavaThreadRin
         for (final ThreadWorker worker : workers) worker.start();
     }
 
-    protected class ThreadWorker extends Thread {
+    protected class ThreadWorker extends Thread implements RingWorker {
         private final int id;
         private final int[] sequences;
+        private final Blackhole blackHole;
         private CountDownLatch cdl;
 
         private volatile boolean waiting = true;
@@ -50,13 +53,14 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark<JavaThreadRin
 
         protected ThreadWorker next;
 
-        public ThreadWorker(final int id, final int[] sequences, final CountDownLatch cdl) {
+        public ThreadWorker(final int id, final int[] sequences, final CountDownLatch cdl, final Blackhole bh) {
             super(String.format("%s-%s-%d",
                     JavaThreadRingBenchmark.class.getSimpleName(),
                     ThreadWorker.class.getSimpleName(), id));
             this.id = id;
             this.sequences = sequences;
             this.cdl = cdl;
+            this.blackHole = bh;
         }
 
         @Override
@@ -64,6 +68,11 @@ public class JavaThreadRingBenchmark extends AbstractRingBenchmark<JavaThreadRin
             while (sequence > 0) {
                 while (waiting) {
                     LockSupport.park();
+                }
+                try {
+                    doWork(blackHole);
+                } catch (final Exception e) {
+                    throw new AssertionError(e);
                 }
                 waiting = true;
                 next.sequence = sequence - 1;

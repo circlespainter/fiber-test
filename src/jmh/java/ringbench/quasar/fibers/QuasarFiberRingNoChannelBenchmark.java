@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.fibers.Suspendable;
 import co.paralleluniverse.strands.Strand;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -16,8 +17,8 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
         protected volatile boolean waiting = true;
         protected volatile int sequence = Integer.MAX_VALUE;
 
-        public ParkUnparkFiber(final FiberScheduler scheduler, final int id, final int[] seqs, final CountDownLatch cdl) {
-            super(scheduler, "ParkUnpark");
+        public ParkUnparkFiber(final FiberScheduler scheduler, final Blackhole bh, final int id, final int[] seqs, final CountDownLatch cdl) {
+            super(scheduler, "ParkUnpark", bh);
             this.self = this;
             this.latch = cdl;
             this.id = id;
@@ -29,6 +30,11 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
         public Integer run() throws SuspendExecution, InterruptedException {
             while (sequence > 0) {
                 while (waiting) { Strand.park(); }
+                try {
+                    doWork(blackHole);
+                } catch (final Exception e) {
+                    throw new AssertionError(e);
+                }
                 waiting = true;
                 next.sequence = sequence - 1;
                 next.waiting = false;
@@ -46,8 +52,8 @@ public class QuasarFiberRingNoChannelBenchmark extends AbstractFiberRingBenchmar
     }
 
     @Override
-    protected ParkUnparkFiber newFiber(final FiberScheduler scheduler, final int id, final int[] sequences, final CountDownLatch cdl) {
-        return new ParkUnparkFiber(scheduler, id, sequences, cdl);
+    protected ParkUnparkFiber newFiber(final FiberScheduler scheduler, final int id, final int[] sequences, final CountDownLatch cdl, final Blackhole bl) {
+        return new ParkUnparkFiber(scheduler, bl, id, sequences, cdl);
     }
 
     @Override

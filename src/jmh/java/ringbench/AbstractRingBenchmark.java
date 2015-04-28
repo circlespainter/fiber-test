@@ -16,13 +16,13 @@ import java.util.concurrent.CountDownLatch;
 public abstract class AbstractRingBenchmark<W> extends RingBenchmarkSupport {
     private CountDownLatch cdl;
 
-    @Benchmark public int[][] ringBenchmark() throws Exception {
+    @Benchmark public int[][] ringBenchmark(final Blackhole bh) throws Exception {
         cdl = new CountDownLatch(workerCount * rings);
 
         final int[][] sequences = new int[rings][workerCount];
 
         // Create and setup workers.
-        final W[][] workers = setupWorkers(sequences, cdl);
+        final W[][] workers = setupWorkers(sequences, cdl, bh);
 
         for (int i = 0; i < rings; i++)
             // Start workers.
@@ -39,10 +39,8 @@ public abstract class AbstractRingBenchmark<W> extends RingBenchmarkSupport {
 
         return sequences;
     }
-
-    protected void shutdown() {}
+    protected abstract W[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl, final Blackhole bl);
     protected void startWorkers(final W[] workers) {}
-
-    protected abstract W[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl);
     protected abstract void startRing(W first) throws SuspendExecution;
+    protected void shutdown() {}
 }

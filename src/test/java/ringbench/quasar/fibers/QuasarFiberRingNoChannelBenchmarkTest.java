@@ -9,6 +9,6 @@ import ringbench.Util;
 public class QuasarFiberRingNoChannelBenchmarkTest extends QuasarFiberRingNoChannelBenchmark {
     @Test
     public void testRingBenchmark() throws Exception {
-        Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark());
+        Util.testRingBenchmark(rings, workerCount, ringSize, ringBenchmark(null));
     }
 }

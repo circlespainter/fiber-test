@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.FiberScheduler;
 import co.paralleluniverse.fibers.SuspendExecution;
 import co.paralleluniverse.strands.channels.Channels;
 import co.paralleluniverse.strands.channels.IntChannel;
+import org.openjdk.jmh.infra.Blackhole;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -11,8 +12,8 @@ import java.util.concurrent.CountDownLatch;
  * @author circlespainter
  */
 public class IntMailboxFiberWorker extends AbstractMailboxFiberRingWorker<IntChannel> {
-    public IntMailboxFiberWorker(final FiberScheduler scheduler, final int id, final String name, final int[] seqs, final CountDownLatch cdl, final int mboxSize, final Channels.OverflowPolicy mboxPolicy) {
-        super(scheduler, id, name, seqs, cdl, Channels.newIntChannel(mboxSize, mboxPolicy));
+    public IntMailboxFiberWorker(final FiberScheduler scheduler, final int id, final String name, final int[] seqs, final CountDownLatch cdl, final int mboxSize, final Channels.OverflowPolicy mboxPolicy, final Blackhole bh) {
+        super(scheduler, id, name, seqs, cdl, Channels.newIntChannel(mboxSize, mboxPolicy), bh);
     }
 
     @Override

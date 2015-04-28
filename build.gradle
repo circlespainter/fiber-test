@@ -43,13 +43,13 @@ dependencies {
     jmh "org.slf4j:slf4j-api:$slf4jVer"
     jmh "ch.qos.logback:logback-classic:$logbackVer"
     jmh "com.typesafe.akka:akka-actor_2.11:$akkaVer"
-    jmh "co.paralleluniverse:quasar-core:${quasarVer}:jdk8"
+    jmh "co.paralleluniverse:quasar-core:${quasarVer}"
     // jmh "com.github.biboudis:jmh-profilers:$jmhProfilersVer"
     jmh("co.paralleluniverse:quasar-actors:$quasarVer") {
         exclude group: 'co.paralleluniverse', module: 'quasar-core'
     }
 
-    quasar "co.paralleluniverse:quasar-core:${quasarVer}:jdk8@jar"
+    quasar "co.paralleluniverse:quasar-core:${quasarVer}@jar"
     byteman "org.jboss.byteman:byteman:${bytemanVer}@jar"
 
     testCompile "junit:junit:$junitVer"
@@ -71,7 +71,8 @@ jmh {
         "-DringSize=1000000 " +
         "-DworkerCount=503 " +
         "-Drings=2 " +
-        "-DfiberParallelism=2 "
+        "-DfiberParallelism=2 " +
+        "-DbusinessLogic=randomSqrt"
     jmhVersion = "$jmhVer"
     // include = '.*QuasarActor.*'
     warmupIterations = 5

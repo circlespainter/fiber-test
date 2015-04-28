@@ -5,7 +5,9 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import co.paralleluniverse.fibers.SuspendExecution;
+import org.openjdk.jmh.infra.Blackhole;
 import ringbench.AbstractRingBenchmark;
+import ringbench.RingWorker;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -18,16 +20,18 @@ import java.util.concurrent.CountDownLatch;
 public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
     private ActorSystem system;
 
-    protected static class InternalActor extends UntypedActor {
+    protected static class InternalActor extends UntypedActor implements RingWorker {
         protected final int id;
         protected final int[] sequences;
         protected final CountDownLatch latch;
+        private final Blackhole blackHole;
         protected ActorRef next = null;
 
-        public InternalActor(final int id, final int[] sequences, final CountDownLatch latch) {
+        public InternalActor(final int id, final int[] sequences, final CountDownLatch latch, final Blackhole bh) {
             this.id = id;
             this.sequences = sequences;
             this.latch = latch;
+            this.blackHole = bh;
         }
 
         @Override public void onReceive(final Object message) throws Exception {
@@ -38,6 +42,7 @@ public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
                     latch.countDown();
                     getContext().stop(getSelf());
                 }
+                doWork(blackHole);
                 next.tell(sequence - 1, getSelf());
             }
             else if (message instanceof ActorRef) next = (ActorRef) message;
@@ -46,7 +51,7 @@ public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
     }
 
     @Override
-    protected ActorRef[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl) {
+    protected ActorRef[][] setupWorkers(final int[][] sequences, final CountDownLatch cdl, final Blackhole bh) {
         system = ActorSystem.create(AkkaActorRingBenchmark.class.getSimpleName() + "System");
 
         final ActorRef[][] actors = new ActorRef[sequences.length][sequences.length >= 0 ? sequences[0].length : 0];
@@ -57,7 +62,7 @@ public class AkkaActorRingBenchmark extends AbstractRingBenchmark<ActorRef> {
 
             for (int j = 0; j < len; j++)
                 acts[j] = system.actorOf(
-                        Props.create(InternalActor.class, j, sequences[i], cdl),
+                        Props.create(InternalActor.class, j, sequences[i], cdl, bh),
                         String.format("%s-%d-%d", AkkaActorRingBenchmark.class.getSimpleName(), i, j));
 
             // Set next actor pointers.
