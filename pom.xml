@@ -43,6 +43,7 @@
             <groupId>co.paralleluniverse</groupId>
             <artifactId>quasar-core</artifactId>
             <version>0.6.3-SNAPSHOT</version>
+            <classifier>jdk8</classifier>
         </dependency>
         <dependency>
             <groupId>co.paralleluniverse</groupId>
@@ -135,7 +136,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.18.1</version>
                 <configuration>
-                    <argLine>-javaagent:${co.paralleluniverse:quasar-core:jar}</argLine>
+                    <argLine>-javaagent:${co.paralleluniverse:quasar-core:jar:jdk8}</argLine>
                     <systemPropertyVariables>
                         <workerCount>32</workerCount>
                         <ringSize>130</ringSize>
