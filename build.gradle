@@ -49,7 +49,7 @@ dependencies {
         exclude group: 'co.paralleluniverse', module: 'quasar-core'
     }
 
-    quasar "co.paralleluniverse:quasar-core:${quasarVer}@jar:jdk8"
+    quasar "co.paralleluniverse:quasar-core:${quasarVer}:jdk8@jar"
     byteman "org.jboss.byteman:byteman:${bytemanVer}@jar"
 
     testCompile "junit:junit:$junitVer"
