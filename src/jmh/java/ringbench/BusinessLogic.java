@@ -17,7 +17,7 @@ final public class BusinessLogic {
     private static final int arraySize = Integer.parseInt(System.getProperty("ringbench.BusinessLogic.arraySize", "224" /* 128 */));
 
     private static final int s1Size = Integer.parseInt(System.getProperty("ringbench.BusinessLogic.string1Size", "6"));
-    private static final int s2Size = Integer.parseInt(System.getProperty("ringbench.BusinessLogic.string2Size", "2048" /* 2048 */));
+    private static final int s2Size = Integer.parseInt(System.getProperty("ringbench.BusinessLogic.string2Size", "4096" /* 2048 */));
 
     private static char[] CHARSET_AZ = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     private static char[] CHARSET_09 = "0123456789".toCharArray();
@@ -116,11 +116,8 @@ final public class BusinessLogic {
         };
     }
 
-    public final Work STRING_MATCH_COUNT = (final Blackhole bh) -> {
-        int count = 0;
-        while (m.find())
-            count++;
-        bh.consume(count);
+    public final Work STRING_MATCH = (final Blackhole bh) -> {
+        bh.consume(m.find());
     };
 
     public static final Work RANDOM_DOUBLE_ARRAY_SORT = (final Blackhole bh) -> {
@@ -137,7 +134,7 @@ final public class BusinessLogic {
             .put("randomSqrt", RANDOM_SQRT)
             .put("randomDoubleArray", RANDOM_DOUBLE_ARRAY)
             .put("randomDoubleArraySort", RANDOM_DOUBLE_ARRAY_SORT)
-            .put("stringMatchCount", STRING_MATCH_COUNT).build();
+            .put("stringMatch", STRING_MATCH).build();
     }
 
     private static final String defaultWorkKey = "randomSqrt";

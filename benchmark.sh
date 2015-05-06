@@ -10,6 +10,7 @@ set -e
 [ -z "$fiberParallelism" ] && fiberParallelism=$rings
 [ -z "$businessLogic" ] && businessLogic=null
 [ -z "$blArraySize" ] && blArraySize=48
+[ -z "$blStringSize" ] && blStringSize=4096
 [ -z "$quasarAgentLocation" ] && quasarAgentLocation=$HOME/.m2/repository/co/paralleluniverse/quasar-core/0.6.3-SNAPSHOT/quasar-core-0.6.3-SNAPSHOT.jar
 [ -z "$bytemanAgentLocation" ] && bytemanAgentLocation="$HOME/.m2/repository/org/jboss/byteman/byteman/2.2.1/byteman-2.2.1.jar"
 [ -z "$warmupIters" ] && warmupIters=5
@@ -28,6 +29,7 @@ if [ "$1" = "-h" -o "$1" = "--help" ]; then
     echo "    fiberParallelism        ($fiberParallelism)"
     echo "    businessLogic           ($businessLogic)"
     echo "    blArraySize             ($blArraySize)"
+    echo "    blStringSize            ($blStringSize)"
     echo "    quasarAgentLocation     ($quasarAgentLocation)"
     echo "    bytemanAgentLocation    ($bytemanAgentLocation)"
     echo "    warmupIters             ($warmupIters)"
@@ -53,7 +55,7 @@ fi
 # -Dorg.jboss.byteman.verbose
 # -Dco.paralleluniverse.fiber.verifyInstrumentation=true
 cmd="$JAVA_HOME/bin/java -server -XX:+TieredCompilation -XX:+AggressiveOpts -jar target/ring-bench.jar\
- -jvmArgsAppend \"-server -XX:+TieredCompilation -XX:+AggressiveOpts -Xbootclasspath/p:$bytemanAgentLocation $jfrOpts -Dorg.jboss.byteman.transform.all -DworkerCount=$workerCount -DringSize=$ringSize -Drings=$rings -DfiberParallelism=$fiberParallelism -DbusinessLogic=$businessLogic -Dringbench.BusinessLogic.arraySize=$blArraySize -javaagent:$quasarAgentLocation -javaagent:$bytemanAgentLocation=script:script.btm\"\
+ -jvmArgsAppend \"-server -XX:+TieredCompilation -XX:+AggressiveOpts -Xbootclasspath/p:$bytemanAgentLocation $jfrOpts -Dorg.jboss.byteman.transform.all -DworkerCount=$workerCount -DringSize=$ringSize -Drings=$rings -DfiberParallelism=$fiberParallelism -DbusinessLogic=$businessLogic -Dringbench.BusinessLogic.arraySize=$blArraySize -Dringbench.BusinessLogic.string2Size=$blStringSize -javaagent:$quasarAgentLocation -javaagent:$bytemanAgentLocation=script:script.btm\"\
  -wi $warmupIters -i $iters -bm $stat -tu $unit -f $forks \"$benchRegexp\""
 
 echo "$cmd"
